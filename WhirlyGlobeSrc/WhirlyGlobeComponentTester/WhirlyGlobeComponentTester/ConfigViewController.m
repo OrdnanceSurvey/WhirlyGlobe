@@ -69,7 +69,8 @@
     [newValues addObject:[ConfigSection ConfigSectionWithName:kMaplyTestCategoryBaseLayers
                                                          rows:
                           @{kMaplyTestBlank: @(NO),
-                                    kMaplyTestGeographyClass: @(YES),
+                                                  OSBaseMap: @YES,
+                                    kMaplyTestGeographyClass: @(NO),
                                          kMaplyTestBlueMarble: @(NO),
                                    kMaplyTestStamenWatercolor: @(NO),
                                                 kMaplyTestOSM: @(NO),
