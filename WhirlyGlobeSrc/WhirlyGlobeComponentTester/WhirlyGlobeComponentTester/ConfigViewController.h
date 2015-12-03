@@ -37,6 +37,8 @@
 #define kMaplyTestQuadVectorTest @"Quad Vector Test Layer"
 #define kMaplyTestElevation @"Cesium Elevation Test Layer"
 
+#define OSBaseMap @"OS Base Map"
+
 // Overlay image layers
 #define kMaplyTestCategoryOverlayLayers @"Overlay layers"
 

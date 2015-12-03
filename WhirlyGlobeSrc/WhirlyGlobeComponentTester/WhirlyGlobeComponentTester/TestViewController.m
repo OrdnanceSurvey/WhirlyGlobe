@@ -29,6 +29,7 @@
 #ifdef NOTPODSPECWG
 #import "MapzenSource.h"
 #import <DDXMLDocument.h>
+#import "OSRemoteTileInfo.h"
 #endif
 
 // Simple representation of locations and name for testing
@@ -408,8 +409,8 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     
 //    [self performSelector:@selector(labelMarkerTest:) withObject:@(0.1) afterDelay:0.1];
 
-    [self addGeoJson:@"sawtooth.geojson"];
-  
+//    [self addGeoJson:@"sawtooth.geojson"];
+
     [baseViewC enable3dTouchSelection:self];
 }
 
@@ -424,36 +425,6 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     bboard.center = MaplyCoordinate3dMake(0, 0, -EarthRadius);
     
     [baseViewC addBillboards:@[bboard] desc:@{kMaplyBillboardOrient:kMaplyBillboardOrientEye}  mode:MaplyThreadCurrent];
-}
-
-
-/* Build two different versions of BNG.  One can go out larger than the other.
-    If display is set, we'll allow a bigger bounding box.
- */
-- (MaplyCoordinateSystem *)buildBritishNationalGrid:(bool)display
-{
-    // Set up the proj4 string including the local grid file
-    NSString *proj4Str = [NSString stringWithFormat:@"+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +nadgrids=%@ +units=m +no_defs",[[NSBundle mainBundle] pathForResource:@"OSTN02_NTv2" ofType:@"gsb"]];
-    MaplyProj4CoordSystem *coordSys = [[MaplyProj4CoordSystem alloc] initWithString:proj4Str];
-    
-    // Set the bounding box for validity.  It assumes it can go everywhere by default
-    MaplyBoundingBox bbox;
-    bbox.ll.x = 1393.0196;    bbox.ll.y = 13494.9764;
-    bbox.ur.x = 671196.3657;    bbox.ur.y = 1230275.0454;
-    
-    // Now expand it out so we can see the whole of the UK
-    if (display)
-    {
-        double spanX = bbox.ur.x - bbox.ll.x;
-        double spanY = bbox.ur.y - bbox.ur.x;
-        double extra = 1.0;
-        bbox.ll.x -= extra*spanX;  bbox.ll.y -= extra*spanY;
-        bbox.ur.x += extra*spanX;  bbox.ur.y += extra*spanY;
-    }
-    
-    [coordSys setBounds:bbox];
-    
-    return coordSys;
 }
 
 - (void)markerOverlapTest
@@ -1536,6 +1507,114 @@ static const float MarkerSpread = 2.0;
     //                   });
 }
 
+- (NSString *)URLForSRS:(NSString*)srs layer:(NSString*)layer service:(NSString*)service {
+    NSString *baseURL = @"https://api.ordnancesurvey.co.uk/mapping_api/service";
+    if ([service isEqualToString:@"wmts"]) {
+        baseURL = [baseURL stringByAppendingPathComponent:@"wmts"];
+        NSArray<NSURLQueryItem *> *query = @[
+            [NSURLQueryItem queryItemWithName:@"apikey" value:@"<insert api key>"],
+            [NSURLQueryItem queryItemWithName:@"height" value:@"256"],
+            [NSURLQueryItem queryItemWithName:@"width" value:@"256"],
+            [NSURLQueryItem queryItemWithName:@"tilematrixSet" value:[srs stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]],
+            [NSURLQueryItem queryItemWithName:@"version" value:@"1.0.0"],
+            [NSURLQueryItem queryItemWithName:@"style" value:@""],
+            [NSURLQueryItem queryItemWithName:@"layer" value:[layer stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]],
+            [NSURLQueryItem queryItemWithName:@"SERVICE" value:@"WMTS"],
+            [NSURLQueryItem queryItemWithName:@"REQUEST" value:@"GetTile"],
+            [NSURLQueryItem queryItemWithName:@"format" value:@"image/png"],
+            [NSURLQueryItem queryItemWithName:@"TileMatrix" value:[[[srs stringByAppendingString:@":"] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] stringByAppendingString:@"{z}"]],
+            [NSURLQueryItem queryItemWithName:@"TileRow" value:@"{y}"],
+            [NSURLQueryItem queryItemWithName:@"TileCol" value:@"{x}"],
+        ];
+        baseURL = [baseURL stringByAppendingString:@"?"];
+        __block NSString *queryString=@"";
+        [query enumerateObjectsUsingBlock:^(NSURLQueryItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if (queryString.length != 0) {
+                queryString = [queryString stringByAppendingString:@"&"];
+            }
+            queryString = [queryString stringByAppendingString:[NSString stringWithFormat:@"%@=%@", obj.name, obj.value]];
+        }];
+        baseURL = [baseURL stringByAppendingString:queryString];
+    } else {
+        baseURL = [baseURL stringByAppendingPathComponent:@"zxy"];
+        baseURL = [baseURL stringByAppendingPathComponent:[srs stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        baseURL = [baseURL stringByAppendingPathComponent:[layer stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        baseURL = [baseURL stringByAppendingPathComponent:@"{z}"];
+        baseURL = [baseURL stringByAppendingPathComponent:@"{x}"];
+        baseURL = [baseURL stringByAppendingPathComponent:@"{y}"];
+        baseURL = [baseURL stringByAppendingPathExtension:@"png"];
+        baseURL = [baseURL stringByAppendingString:@"?apikey=<insert api key>"];
+    }
+    return baseURL;
+}
+
+/* Build two different versions of BNG.  One can go out larger than the other.
+ If display is set, we'll allow a bigger bounding box.
+ */
+- (MaplyCoordinateSystem *)buildBritishNationalGrid:(bool)display
+{
+    // Set up the proj4 string including the local grid file
+    NSString *proj4Str = [NSString stringWithFormat:@"+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +nadgrids=%@ +units=m +no_defs",[[NSBundle mainBundle] pathForResource:@"OSTN02_NTv2" ofType:@"gsb"]];
+    MaplyProj4CoordSystem *coordSys = [[MaplyProj4CoordSystem alloc] initWithString:proj4Str];
+
+    // Set the bounding box for validity.  It assumes it can go everywhere by default
+    MaplyBoundingBox bbox;
+    bbox.ll.x = 1393.0196;    bbox.ll.y = 13494.9764;
+    bbox.ur.x = 671196.3657;    bbox.ur.y = 1230275.0454;
+
+    // Now expand it out so we can see the whole of the UK
+    if (display)
+    {
+        double spanX = bbox.ur.x - bbox.ll.x;
+        double spanY = bbox.ur.y - bbox.ur.x;
+        double extra = 1.0;
+        bbox.ll.x -= extra*spanX;  bbox.ll.y -= extra*spanY;
+        bbox.ur.x += extra*spanX;  bbox.ur.y += extra*spanY;
+    }
+
+    [coordSys setBounds:bbox];
+
+    return coordSys;
+}
+
+- (MaplyCoordinateSystem *)bngForTileSource {
+    // Set up the proj4 string including the local grid file
+    NSString *proj4Str = [NSString stringWithFormat:@"+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +nadgrids=%@ +units=m +no_defs",[[NSBundle mainBundle] pathForResource:@"OSTN02_NTv2" ofType:@"gsb"]];
+    MaplyProj4CoordSystem *coordSys = [[MaplyProj4CoordSystem alloc] initWithString:proj4Str];
+
+    // Set the bounding box for validity.  It assumes it can go everywhere by default
+    MaplyBoundingBox bbox;
+    bbox.ll.x = 1393.0196;    bbox.ll.y = 13494.9764;
+    bbox.ur.x = 671196.3657;    bbox.ur.y = 1230275.0454;
+
+    // Top left corner from wmts is -238375.0 1376256.0?
+
+    [coordSys setBounds:bbox];
+
+    return coordSys;
+}
+
+- (void)configureOSMap {
+    self.title = @"OS Map";
+//    MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:[self URLForSRS:@"EPSG:900913" layer:@"Zoom Map 3857" service:@"wmts"] ext:nil minZoom:7 maxZoom:22];
+
+    MaplyCoordinateSystem *bng = [self bngForTileSource];
+    MaplyRemoteTileInfo *tileInfo = [[OSRemoteTileInfo alloc] initWithBaseURL:[self URLForSRS:@"EPSG:27700" layer:@"Zoom Map Auto" service:@"wmts"] ext:nil minZoom:3 maxZoom:3];
+    tileInfo.coordSys = bng;
+    MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithInfo:tileInfo];
+
+    MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+    baseLayer = layer;
+    layer.handleEdges = (globeViewC != nil);
+    layer.coverPoles = (globeViewC != nil);
+    layer.requireElev = requireElev;
+    layer.waitLoad = imageWaitLoad;
+    layer.drawPriority = BaseEarthPriority;
+    layer.singleLevelLoading = (startupMapType == Maply2DMap);
+    [layer setTesselationValues:tessValues];
+    [baseViewC addLayer:layer];
+}
+
 // Set this to reload the base layer ever so often.  Purely for testing
 //#define RELOADTEST 1
 
@@ -1589,6 +1668,11 @@ static const float MarkerSpread = 2.0;
 #ifdef RELOADTEST
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(reloadLayer:) object:nil];
 #endif
+
+    if ([baseLayerName isEqualToString:OSBaseMap]) {
+        [self configureOSMap];
+        return;
+    }
     
     if (![baseLayerName compare:kMaplyTestBlank])
     {
