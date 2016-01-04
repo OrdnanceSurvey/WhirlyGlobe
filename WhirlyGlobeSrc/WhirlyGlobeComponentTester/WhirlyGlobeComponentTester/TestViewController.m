@@ -223,6 +223,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     mapViewC.doubleTapZoomGesture = true;
     mapViewC.twoFingerTapGesture = true;
     mapViewC.viewWrap = true;
+    mapViewC.cancelAnimationOnTouch = true;
     mapViewC.delegate = self;
     baseViewC = mapViewC;
     break;
@@ -231,6 +232,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     mapViewC.viewWrap = true;
     mapViewC.doubleTapZoomGesture = true;
     mapViewC.twoFingerTapGesture = true;
+    mapViewC.cancelAnimationOnTouch = true;
     mapViewC.delegate = self;
     baseViewC = mapViewC;
     configViewC.configOptions = ConfigOptionsFlat;
@@ -241,6 +243,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     mapViewC.viewWrap = false;
     mapViewC.doubleTapZoomGesture = true;
     mapViewC.twoFingerTapGesture = true;
+    mapViewC.cancelAnimationOnTouch = true;
     mapViewC.delegate = self;
     baseViewC = mapViewC;
     configViewC.configOptions = ConfigOptionsFlat;
@@ -272,7 +275,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     baseViewC.frameInterval = 3; // 20fps
     baseViewC.threadPerLayer = false;
   } else {
-    baseViewC.frameInterval = 2; // 30fps
+    baseViewC.frameInterval = 1; // 60fps
     baseViewC.threadPerLayer = true;
   }
 
@@ -1882,7 +1885,7 @@ static const float MarkerSpread = 2.0;
                                         minZoom:3
                                         maxZoom:16];
   tileInfo.coordSys = bng;
-  tileInfo.pixelsPerSide = 256;
+  //  tileInfo.pixelsPerSide = 256;
   MaplyRemoteTileSource *tileSource =
       [[MaplyRemoteTileSource alloc] initWithInfo:tileInfo];
   tileSource.cacheDir = [NSString stringWithFormat:@"%@/%@", cacheDir, mapName];

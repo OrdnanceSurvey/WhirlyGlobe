@@ -1563,7 +1563,7 @@
 				ORGANIZATIONNAME = "mousebird consulting";
 				TargetAttributes = {
 					2B62DD5916E7F0BC001F52FC = {
-						DevelopmentTeam = BFXSGS6V8N;
+						DevelopmentTeam = L98YTEXGV8;
 					};
 				};
 			};
@@ -2123,7 +2123,7 @@
 				INFOPLIST_FILE = "WhirlyGlobeComponentTester/WhirlyGlobeComponentTester-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.mousebirdconsulting.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_BUNDLE_IDENTIFIER = uk.os.WhirlyGlobeComponentTester;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
@@ -2148,7 +2148,7 @@
 				INFOPLIST_FILE = "WhirlyGlobeComponentTester/WhirlyGlobeComponentTester-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.mousebirdconsulting.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_BUNDLE_IDENTIFIER = uk.os.WhirlyGlobeComponentTester;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;

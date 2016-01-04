@@ -27,7 +27,7 @@
     fullURLStr = [NSString stringWithFormat:@"%@.%@", fullURLStr, self.ext];
   }
 
-  NSLog(@"Fetching: %@", fullURLStr);
+  //  NSLog(@"Fetching: %@", fullURLStr);
 
   return [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
 }
