@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2B05BA2B1BE43AA100CF857A /* sawtooth.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B05BA2A1BE43AA100CF857A /* sawtooth.geojson */; };
 		2B05BA441BF218C000CF857A /* OSTN02_NTv2.gsb in Resources */ = {isa = PBXBuildFile; fileRef = 2B05BA421BF2187C00CF857A /* OSTN02_NTv2.gsb */; };
 		2B0B8DD31BB330E70060C70D /* redsquare.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B0B8DD11BB330E70060C70D /* redsquare.png */; };
 		2B0B8DD41BB330E70060C70D /* bluesquare.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B0B8DD21BB330E70060C70D /* bluesquare.png */; };
@@ -1814,7 +1813,6 @@
 				2BFD2771170B933C00127EF5 /* LBR.geojson in Resources */,
 				2BFD2772170B933C00127EF5 /* LBY.geojson in Resources */,
 				2BFD2773170B933C00127EF5 /* LCA.geojson in Resources */,
-				2B05BA2B1BE43AA100CF857A /* sawtooth.geojson in Resources */,
 				2BFD2774170B933C00127EF5 /* LIE.geojson in Resources */,
 				2BFD2775170B933C00127EF5 /* LKA.geojson in Resources */,
 				2BC0FB201964D3580043E1FD /* dam-24@2x.png in Resources */,
